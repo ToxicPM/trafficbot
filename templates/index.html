@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Traffic Bot Control Panel</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="/static/css/styles.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-md-3 col-lg-2 d-md-block bg-dark sidebar">
+                <div class="position-sticky pt-3">
+                    <div class="text-center mb-4">
+                        <h4 class="text-white">Traffic Bot</h4>
+                        <p class="text-muted">Advanced Control Panel</p>
+                    </div>
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link active" href="#dashboard">
+                                <i class="fas fa-tachometer-alt me-2"></i> Dashboard
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#targets">
+                                <i class="fas fa-bullseye me-2"></i> Targets
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#vpn">
+                                <i class="fas fa-shield-alt me-2"></i> VPN & Proxies
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#behavior">
+                                <i class="fas fa-user me-2"></i> Behavior Settings
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#schedule">
+                                <i class="fas fa-calendar-alt me-2"></i> Schedule
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#logs">
+                                <i class="fas fa-clipboard-list me-2"></i> Logs
+                            </a>
+                        </li>
+                    </ul>
+                    
+                    <div class="mt-5 pt-5 text-center text-muted">
+                        <div id="current-ip">Current IP: Loading...</div>
+                        <div id="bot-status">Status: Stopped</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Main Content -->
+            <div class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+                <!-- Dashboard -->
+                <div id="dashboard" class="section active">
+                    <h1 class="my-4">Dashboard</h1>
+                    
+                    <div class="row g-4 mb-4">
+                        <div class="col-md-3">
+                            <div class="card h-100">
+                                <div class="card-body text-center">
+                                    <i class="fas fa-globe fa-3x text-primary mb-3"></i>
+                                    <h2 id="total-visits">0</h2>
+                                    <p class="text-muted">Total Visits</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card h-100">
+                                <div class="card-body text-center">
+                                    <i class="fas fa-check-circle fa-3x text-success mb-3"></i>
+                                    <h2 id="successful-visits">0</h2>
+                                    <p class="text-muted">Successful Visits</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card h-100">
+                                <div class="card-body text-center">
+                                    <i class="fas fa-times-circle fa-3x text-danger mb-3"></i>
+                                    <h2 id="failed-visits">0</h2>
+                                    <p class="text-muted">Failed Visits</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card h-100">
+                                <div class="card-body text-center">
+                                    <i class="fas fa-robot fa-3x text-warning mb-3"></i>
+                                    <h2 id="captchas-solved">0</h2>
+                                    <p class="text-muted">CAPTCHAs Solved</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row g-4 mb-4">
+                        <div class="col-md-12">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5>Bot Control</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row g-3">
+                                        <div class="col-md-6">
+                                            <label class="form-label">Worker Threads</label>
+                                            <input type="number" id="worker-threads" class="form-control" min="1" max="12" value="8">
+                                            <small class="text-muted">Recommended: 8-10 for your server</small>
+                                        </div>
+                                        <div class="col-md-6 d-flex align-items-end">
+                                            <button id="start-bot" class="btn btn-success me-2">
+                                                <i class="fas fa-play me-1"></i> Start Bot
+                                            </button>
+                                            <button id="stop-bot" class="btn btn-danger me-2" disabled>
+                                                <i class="fas fa-stop me-1"></i> Stop Bot
+                                            </button>
+                                            <button id="pause-bot" class="btn btn-warning me-2" disabled>
+                                                <i class="fas fa-pause me-1"></i> Pause
+                                            </button>
+                                            <button id="resume-bot" class="btn btn-info" disabled>
+                                                <i class="fas fa-play me-1"></i> Resume
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row g-4 mb-4">
+                        <div class="col-md-4">
+                            <div class="card h-100">
+                                <div class="card-header">
+                                    <h5>Traffic Sources</h5>
+                                </div>
+                                <div class="card-body">
+                                    <canvas id="sources-chart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card h-100">
+                                <div class="card-header">
+                                    <h5>Device Types</h5>
+                                </div>
+                                <div class="card-body">
+                                    <canvas id="devices-chart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card h-100">
+                                <div class="card-header">
+                                    <h5>Success Rate</h5>
+                                </div>
+                                <div class="card-body">
+                                    <canvas id="success-chart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Targets -->
+                <div id="targets" class="section">
+                    <h1 class="my-4">Targets</h1>
+                    
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <div class="card h-100">
+                                <div class="card-header">
+                                    <h5>Keywords</h5>
+                                </div>
+                                <div class="card-body">
+                                    <p class="text-muted">Enter keywords one per line. The bot will search for these keywords and visit the results.</p>
+                                    <textarea id="keywords" class="form-control" rows="10" placeholder="Enter keywords here..."></textarea>
+                                    <div class="d-grid mt-3">
+                                        <button id="update-keywords" class="btn btn-primary">
+                                            <i class="fas fa-save me-1"></i> Update Keywords
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card h-100">
+                                <div class="card-header">
+                                    <h5>URLs</h5>
+                                </div>
+                                <div class="card-body">
+                                    <p class="text-muted">Enter URLs one per line. The bot will directly visit these URLs.</p>
+                                    <textarea id="urls" class="form-control" rows="10" placeholder="Enter URLs here..."></textarea>
+                                    <div class="d-grid mt-3">
+                                        <button id="update-urls" class="btn btn-primary">
+                                            <i class="fas fa-save me-1"></i> Update URLs
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-4">
+                        <div class="col-md-12">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5>Tracking URLs</h5>
+                                </div>
+                                <div class="card-body">
+                                    <p class="text-muted">Add custom tracking URLs (with UTM parameters) that will be used instead of the original URLs.</p>
+                                    <div class="row g-3 mb-3">
+                                        <div class="col-md-5">
+                                            <input type="text" id="original-url" class="form-control" placeholder="Original URL">
+                                        </div>
+                                        <div class="col-md-5">
+                                            <input type="text" id="tracking-url" class="form-control" placeholder="Tracking URL with UTM parameters">
+                                        </div>
+                                        <div class="col-md-2">
+                                            <button id="add-tracking-url" class="btn btn-primary w-100">
+                                                <i class="fas fa-plus me-1"></i> Add
+                                            </button>
+                                        </div>
+                                    </div>
+                                    
+                                    <table class="table" id="tracking-urls-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Original URL</th>
+                                                <th>Tracking URL</th>
+                                                <th>Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <!-- Tracking URLs will be added here -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- VPN & Proxies -->
+                <div id="vpn" class="section">
+                    <h1 class="my-4">VPN & Proxies</h1>
+                    
+                    <div class="row mb-4">
+                        <div class="col-md-4">
+                            <div class="card h-100">
+                                <div class="card-header">
+                                    <h5>PIA VPN</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="form-check form-switch mb-3">
+                                        <input class="form-check-input" type="checkbox" id="enable-pia">
+                                        <label class="form-check-label" for="enable-pia">Enable PIA VPN</label>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label class="form-label">Region</label>
+                                        <select id="pia-region" class="form-select">
+                                            <option value="">Select Region</option>
+                                            <!-- Regions will be loaded dynamically -->
+                                        </select>
+                                    </div>
+                                    
+                                    <div class="d-grid">
+                                        <button id="connect-pia" class="btn btn-primary">
+                                            <i class="fas fa-plug me-1"></i> Connect
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card h-100">
+                                <div class="card-header">
+                                    <h5>NordVPN</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="form-check form-switch mb-3">
+                                        <input class="form-check-input" type="checkbox" id="enable-nordvpn">
+                                        <label class="form-check-label" for="enable-nordvpn">Enable NordVPN</label>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label class="form-label">Region</label>
+                                        <select id="nordvpn-region" class="form-select">
+                                            <option value="">Select Region</option>
+                                            <!-- Regions will be loaded dynamically -->
+                                        </select>
+                                    </div>
+                                    
+                                    <div class="d-grid">
+                                        <button id="connect-nordvpn" class="btn btn-primary">
+                                            <i class="fas fa-plug me-1"></i> Connect
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card h-100">
+                                <div class="card-header">
+                                    <h5>ExpressVPN</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="form-check form-switch mb-3">
+                                        <input class="form-check-input" type="checkbox" id="enable-expressvpn">
+                                        <label class="form-check-label" for="enable-expressvpn">Enable ExpressVPN</label>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label class="form-label">Region</label>
+                                        <select id="expressvpn-region" class="form-select">
+                                            <option value="">Select Region</option>
+                                            <!-- Regions will be loaded dynamically -->
+                                        </select>
+                                    </div>
+                                    
+                                    <div class="d-grid">
+                                        <button id="connect-expressvpn" class="btn btn-primary">
+                                            <i class="fas fa-plug me-1"></i> Connect
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-4">
+                        <div class="col-md-12">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5>Proxies</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="form-check form-switch mb-3">
+                                        <input class="form-check-input" type="checkbox" id="use-proxies" checked>
+                                        <label class="form-check-label" for="use-proxies">Use proxies (when VPN not used)</label>
+                                    </div>
+                                    
+                                    <p class="text-muted">
+                                        <strong>Proxy Count:</strong> <span id="proxy-count">0</span><br>
+                                        <strong>Current Proxy:</strong> <span id="current-proxy">None</span>
+                                    </p>
+                                    
+                                    <div class="d-flex">
+                                        <button id="reload-proxies" class="btn btn-primary me-2">
+                                            <i class="fas fa-sync-alt me-1"></i> Reload Proxies
+                                        </button>
+                                        <button id="test-proxy" class="btn btn-success">
+                                            <i class="fas fa-vial me-1"></i> Test Random Proxy
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Behavior Settings -->
+                <div id="behavior" class="section">
+                    <h1 class="my-4">Behavior Settings</h1>
+                    
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <div class="card h-100">
+                                <div class="card-header">
+                                    <h5>Visit Duration</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="mb-3">
+                                        <label for="min-duration" class="form-label">Minimum Visit Duration (seconds)</label>
+                                        <input type="number" id="min-duration" class="form-control" min="10" value="60">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="max-duration" class="form-label">Maximum Visit Duration (seconds)</label>
+                                        <input type="number" id="max-duration" class="form-control" min="10" value="180">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="bounce-rate" class="form-label">Bounce Rate (%)</label>
+                                        <input type="number" id="bounce-rate" class="form-control" min="0" max="100" value="15">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="max-subpages" class="form-label">Maximum Subpages Per Visit</label>
+                                        <input type="number" id="max-subpages" class="form-control" min="0" max="10" value="3">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card h-100">
+                                <div class="card-header">
+                                    <h5>Page Interaction</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="mb-3">
+                                        <label for="scroll-depth" class="form-label">Scroll Depth (%)</label>
+                                        <input type="number" id="scroll-depth" class="form-control" min="0" max="100" value="70">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="click-probability" class="form-label">Click Probability (%)</label>
+                                        <input type="number" id="click-probability" class="form-control" min="0" max="100" value="60">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="form-interaction" class="form-label">Form Interaction Probability (%)</label>
+                                        <input type="number" id="form-interaction" class="form-control" min="0" max="100" value="30">
+                                    </div>
+                                    <div class="form-check form-switch mb-3">
+                                        <input class="form-check-input" type="checkbox" id="adsense-safe" checked>
+                                        <label class="form-check-label" for="adsense-safe">AdSense Safe Mode</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5>Device Distribution</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="mb-3">
+                                        <label for="desktop-percent" class="form-label">Desktop (%)</label>
+                                        <input type="number" id="desktop-percent" class="form-control device-percent" min="0" max="100" value="60">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="mobile-percent" class="form-label">Mobile (%)</label>
+                                        <input type="number" id="mobile-percent" class="form-control device-percent" min="0" max="100" value="30">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="tablet-percent" class="form-label">Tablet (%)</label>
+                                        <input type="number" id="tablet-percent" class="form-control device-percent" min="0" max="100" value="10">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5>Traffic Source Distribution</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="mb-3">
+                                        <label for="search-percent" class="form-label">Search (%)</label>
+                                        <input type="number" id="search-percent" class="form-control source-percent" min="0" max="100" value="40">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="social-percent" class="form-label">Social (%)</label>
+                                        <input type="number" id="social-percent" class="form-control source-percent" min="0" max="100" value="25">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="direct-percent" class="form-label">Direct (%)</label>
+                                        <input type="number" id="direct-percent" class="form-control source-percent" min="0" max="100" value="20">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="referral-percent" class="form-label">Referral (%)</label>
+                                        <input type="number" id="referral-percent" class="form-control source-percent" min="0" max="100" value="15">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-4">
+                        <div class="col-md-12">
+                            <div class="d-grid">
+                                <button id="update-behavior" class="btn btn-primary">
+                                    <i class="fas fa-save me-1"></i> Update Behavior Settings
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Schedule -->
+                <div id="schedule" class="section">
+                    <h1 class="my-4">Schedule</h1>
+                    
+                    <div class="row mb-4">
+                        <div class="col-md-12">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5>Traffic Schedule</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row mb-3">
+                                        <div class="col-md-6">
+                                            <label for="monthly-target" class="form-label">Monthly Target Visits</label>
+                                            <input type="number" id="monthly-target" class="form-control" min="0" placeholder="e.g. 100000">
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="schedule-mode" class="form-label">Distribution Mode</label>
+                                            <select id="schedule-mode" class="form-select">
+                                                <option value="even">Even Distribution</option>
+                                                <option value="random">Random Distribution</option>
+                                                <option value="frontloaded">Front-loaded (more at start)</option>
+                                                <option value="backloaded">Back-loaded (more at end)</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="row mb-3">
+                                        <div class="col-md-6">
+                                            <label class="form-label">Active Days</label>
+                                            <div class="d-flex flex-wrap">
+                                                <div class="form-check me-3">
+                                                    <input class="form-check-input active-day" type="checkbox" value="0" id="day-mon" checked>
+                                                    <label class="form-check-label" for="day-mon">Mon</label>
+                                                </div>
+                                                <div class="form-check me-3">
+                                                    <input class="form-check-input active-day" type="checkbox" value="1" id="day-tue" checked>
+                                                    <label class="form-check-label" for="day-tue">Tue</label>
+                                                </div>
+                                                <div class="form-check me-3">
+                                                    <input class="form-check-input active-day" type="checkbox" value="2" id="day-wed" checked>
+                                                    <label class="form-check-label" for="day-wed">Wed</label>
+                                                </div>
+                                                <div class="form-check me-3">
+                                                    <input class="form-check-input active-day" type="checkbox" value="3" id="day-thu" checked>
+                                                    <label class="form-check-label" for="day-thu">Thu</label>
+                                                </div>
+                                                <div class="form-check me-3">
+                                                    <input class="form-check-input active-day" type="checkbox" value="4" id="day-fri" checked>
+                                                    <label class="form-check-label" for="day-fri">Fri</label>
+                                                </div>
+                                                <div class="form-check me-3">
+                                                    <input class="form-check-input active-day" type="checkbox" value="5" id="day-sat" checked>
+                                                    <label class="form-check-label" for="day-sat">Sat</label>
+                                                </div>
+                                                <div class="form-check">
+                                                    <input class="form-check-input active-day" type="checkbox" value="6" id="day-sun" checked>
+                                                    <label class="form-check-label" for="day-sun">Sun</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label">Active Hours</label>
+                                            <div class="btn-group mb-2">
+                                                <button type="button" class="btn btn-sm btn-outline-secondary hour-preset" data-hours="all">All Hours</button>
+                                                <button type="button" class="btn btn-sm btn-outline-secondary hour-preset" data-hours="business">Business Hours</button>
+                                                <button type="button" class="btn btn-sm btn-outline-secondary hour-preset" data-hours="evening">Evening Hours</button>
+                                            </div>
+                                            <div id="hours-selector" class="d-flex flex-wrap mt-2">
+                                                <!-- Hours checkboxes will be generated by JS -->
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="row mb-3">
+                                        <div class="col-md-6">
+                                            <label for="start-date" class="form-label">Start Date</label>
+                                            <input type="date" id="start-date" class="form-control">
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="end-date" class="form-label">End Date</label>
+                                            <input type="date" id="end-date" class="form-control">
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="progress mb-3">
+                                        <div id="monthly-progress" class="progress-bar" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">0%</div>
+                                    </div>
+                                    
+                                    <div class="d-grid">
+                                        <button id="update-schedule" class="btn btn-primary">
+                                            <i class="fas fa-save me-1"></i> Update Schedule
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Logs -->
+                <div id="logs" class="section">
+                    <h1 class="my-4">Logs</h1>
+                    
+                    <div class="row mb-4">
+                        <div class="col-md-12">
+                            <div class="card">
+                                <div class="card-header">
+                                    <ul class="nav nav-tabs card-header-tabs" id="log-tabs" role="tablist">
+                                        <li class="nav-item" role="presentation">
+                                            <button class="nav-link active" id="activity-tab" data-bs-toggle="tab" data-bs-target="#activity-log" type="button" role="tab" aria-controls="activity-log" aria-selected="true">
+                                                <i class="fas fa-clipboard-list me-1"></i> Activity Log
+                                            </button>
+                                        </li>
+                                        <li class="nav-item" role="presentation">
+                                            <button class="nav-link" id="error-tab" data-bs-toggle="tab" data-bs-target="#error-log" type="button" role="tab" aria-controls="error-log" aria-selected="false">
+                                                <i class="fas fa-exclamation-triangle me-1"></i> Error Log
+                                            </button>
+                                        </li>
+                                    </ul>
+                                </div>
+                                <div class="card-body">
+                                    <div class="tab-content" id="log-content">
+                                        <div class="tab-pane fade show active" id="activity-log" role="tabpanel" aria-labelledby="activity-tab">
+                                            <div class="d-flex justify-content-between mb-3">
+                                                <h5>System Activity</h5>
+                                                <div>
+                                                    <button id="refresh-activity-log" class="btn btn-sm btn-outline-primary me-2">
+                                                        <i class="fas fa-sync-alt me-1"></i> Refresh
+                                                    </button>
+                                                    <button id="clear-activity-log" class="btn btn-sm btn-outline-danger">
+                                                        <i class="fas fa-trash me-1"></i> Clear
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            <div class="log-container" id="activity-log-container">
+                                                <div class="text-center text-muted py-5">
+                                                    <div class="spinner-border text-primary mb-3" role="status">
+                                                        <span class="visually-hidden">Loading...</span>
+                                                    </div>
+                                                    <div>Loading activity logs...</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="tab-pane fade" id="error-log" role="tabpanel" aria-labelledby="error-tab">
+                                            <div class="d-flex justify-content-between mb-3">
+                                                <h5>Error Messages</h5>
+                                                <div>
+                                                    <button id="refresh-error-log" class="btn btn-sm btn-outline-primary me-2">
+                                                        <i class="fas fa-sync-alt me-1"></i> Refresh
+                                                    </button>
+                                                    <button id="clear-error-log" class="btn btn-sm btn-outline-danger">
+                                                        <i class="fas fa-trash me-1"></i> Clear
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            <div class="log-container" id="error-log-container">
+                                                <div class="text-center text-muted py-5">
+                                                    <div class="spinner-border text-danger mb-3" role="status">
+                                                        <span class="visually-hidden">Loading...</span>
+                                                    </div>
+                                                    <div>Loading error logs...</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
+    <script src="/static/js/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,100 @@
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f8f9fa;
+}
+
+.sidebar {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 100;
+    padding: 48px 0 0;
+    box-shadow: inset -1px 0 0 rgba(0, 0, 0, .1);
+}
+
+.sidebar .nav-link {
+    color: #adb5bd;
+    padding: 0.75rem 1rem;
+    border-radius: 5px;
+    margin: 0.2rem 1rem;
+}
+
+.sidebar .nav-link:hover, 
+.sidebar .nav-link.active {
+    color: #fff;
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.sidebar .nav-link i {
+    width: 20px;
+    text-align: center;
+}
+
+.section {
+    display: none;
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+.section.active {
+    display: block;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.log-container {
+    height: 500px;
+    overflow-y: auto;
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 5px;
+    padding: 10px;
+    font-family: monospace;
+    font-size: 0.9rem;
+    white-space: pre-wrap;
+}
+
+.card {
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    border: none;
+    transition: transform 0.2s;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+}
+
+.card-header {
+    background-color: #343a40;
+    color: white;
+}
+
+.hour-preset {
+    font-size: 0.8rem;
+}
+
+.hour-checkbox {
+    width: 36px;
+    margin: 2px;
+}
+
+.hour-checkbox .form-check-input {
+    margin-right: 2px;
+}
+
+.hour-checkbox .form-check-label {
+    font-size: 0.8rem;
+}
+
+.device-percent, 
+.source-percent {
+    height: 38px;
+}
+
+#current-ip, #bot-status {
+    font-size: 0.8rem;
+    margin-bottom: 5px;
+}
